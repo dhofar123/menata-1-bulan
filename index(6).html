@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14463a">
+<title>Menata 1 Bulan</title>
+<style>
+:root{--bg:#eef3ef;--card:#fff;--ink:#12332b;--mute:#5d746c;--acc:#1b7a5a;--acc2:#bfe3d3;--warn:#c9822b;--line:#d5e2dc;color-scheme:light}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1f1b;--card:#172b26;--ink:#e6f2ec;--mute:#93aca2;--acc:#3fbf93;--acc2:#24493e;--warn:#e0a24f;--line:#27413a;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+main{max-width:520px;margin:0 auto;padding:16px}
+h1{font:700 28px/1.1 Georgia,"Times New Roman",serif;margin:8px 0 2px}
+.sub{color:var(--mute);margin:0 0 14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.bar{height:8px;background:var(--acc2);border-radius:9px;overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:var(--acc);width:0;transition:width .3s}
+.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.d{aspect-ratio:1;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink);font:600 14px system-ui;display:flex;align-items:center;justify-content:center;padding:0}
+.d[disabled]{opacity:.35}
+.d.p{background:var(--acc2)}.d.f{background:var(--acc);color:#fff;border-color:var(--acc)}
+.d.m{border-style:dashed;color:var(--warn)}
+.d.sel{outline:3px solid var(--ink);outline-offset:1px}
+.item{display:flex;gap:12px;align-items:center;padding:12px 4px;border-top:1px solid var(--line);width:100%;background:none;border-left:0;border-right:0;border-bottom:0;color:var(--ink);font:inherit;text-align:left}
+.item:first-of-type{border-top:0}
+.cb{flex:none;width:28px;height:28px;border-radius:8px;border:2px solid var(--acc);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+.on .cb{background:var(--acc)}.on .t{text-decoration:line-through;color:var(--mute)}
+.t small{display:block;color:var(--mute);font-size:13px}
+button.b{background:var(--acc);color:#fff;border:0;border-radius:10px;padding:11px 14px;font:600 15px system-ui;min-height:44px}
+button.b.o{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.set{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;margin:10px 0;font-size:14px}
+input[type=time]{font:inherit;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+summary{font-weight:600;min-height:44px;display:flex;align-items:center}
+#ov{position:fixed;inset:0;background:rgba(10,30,24,.92);display:none;align-items:center;justify-content:center;padding:20px;z-index:9}
+#ov .box{background:var(--card);border-radius:16px;padding:20px;max-width:420px;width:100%;animation:sh .6s infinite alternate}
+@keyframes sh{to{transform:translateX(4px)}}
+@media(prefers-reduced-motion:reduce){#ov .box{animation:none}}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--warn);outline-offset:2px}
+.note{font-size:13px;color:var(--mute)}
+</style>
+</head>
+<body>
+<main>
+  <h1>Menata 1 Bulan</h1>
+  <p class="sub" id="sub"></p>
+  <div class="card" id="sum"></div>
+  <div class="card"><div class="grid" id="grid"></div></div>
+  <div class="card"><b id="dt"></b><div id="list"></div></div>
+  <div class="card">
+    <div class="row"><button class="b" id="arm">Aktifkan alarm</button><span class="note" id="armst"></span></div>
+    <p class="note">Alarm berbunyi selama halaman ini terbuka di HP (tanpa server, browser tidak bisa membunyikan alarm saat tab ditutup). Buka halaman ini sebelum tidur dan biarkan layar menyala.</p>
+    <details><summary>Atur jam alarm</summary><label class="row" style="margin-top:6px">Tanggal mulai <input type="date" id="st"></label><div id="cfg"></div>
+      <label class="row"><input type="checkbox" id="wake"> Jaga layar tetap menyala</label>
+    </details>
+    <details><summary>Cadangan &amp; mulai ulang</summary>
+      <div class="row"><button class="b o" id="exp">Salin cadangan</button><button class="b o" id="imp">Pulihkan</button><button class="b o" id="rst">Mulai ulang bulan</button></div>
+    </details>
+  </div>
+</main>
+<div id="ov"><div class="box"><h2 style="margin:0 0 4px;font-family:Georgia,serif">Belum dikerjakan</h2><div id="ovl"></div><div class="row" style="margin-top:12px"><button class="b o" id="snz">Ingatkan 5 menit lagi</button></div></div></div>
+
+<script>
+var H=[
+{id:"puasa",n:"Puasa Senin Kamis",days:[1,4],at:"03:30",un:"11:00"},
+{id:"qob",n:"Sholat sunnah qobliyah Shubuh",at:"04:15",un:"06:00"},
+{id:"sub",n:"Sholat Shubuh berjamaah",at:"04:30",un:"06:00"},
+{id:"ain",n:"Membaca Al-Qur’an 1 a’in",at:"19:30",un:"23:59"},
+{id:"mulk",n:"Membaca Al-Mulk",at:"21:00",un:"23:59"}];
+var DAY=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+var KEY="menata1bulan.v1",S,sel,last={},audio,beepT,armed=false,wl=null;
+function load(){try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+ S=S||{};S.log=S.log||{};S.cfg=S.cfg||{};S.wake=!!S.wake;
+ H.forEach(function(h){S.cfg[h.id]=Object.assign({on:true,at:h.at,un:h.un},S.cfg[h.id])});
+ if(!S.start)S.start="2026-11-18"}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function k(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function fk(s){var p=s.split("-");return new Date(+p[0],p[1]-1,+p[2])}
+function idx(s){return Math.round((fk(s)-fk(S.start))/864e5)}
+function dk(i){var d=fk(S.start);d.setDate(d.getDate()+i);return k(d)}
+function req(key){var w=fk(key).getDay();return H.filter(function(h){return !h.days||h.days.indexOf(w)>-1})}
+function done(key){var l=S.log[key]||{};return req(key).filter(function(h){return l[h.id]}).length}
+function $(i){return document.getElementById(i)}
+function render(){
+ var today=k(new Date()),ti=idx(today),n=Math.min(ti,29);
+ $("sub").textContent=ti>29?"Bulan ini sudah selesai. Alhamdulillah!":ti<0?"Mulai "+fk(S.start).getDate()+"/"+(fk(S.start).getMonth()+1)+" (belum dimulai)":"Hari ke-"+(ti+1)+" dari 30";
+ var tot=0,dn=0,streak=0;
+ for(var i=0;i<=n;i++){var q=req(dk(i)).length;tot+=q;dn+=done(dk(i))}
+ for(var j=n;j>=0;j--){if(done(dk(j))===req(dk(j)).length)streak++;else if(j!==ti)break;else continue}
+ var pc=tot?Math.round(dn/tot*100):0;
+ $("sum").innerHTML="<b>"+pc+"%</b> selesai ("+dn+" dari "+tot+" amalan) &nbsp;·&nbsp; beruntun penuh: <b>"+streak+" hari</b><div class=bar><i style='width:"+pc+"%'></i></div>";
+ var g="";for(var d=0;d<30;d++){var key=dk(d),r=req(key).length,c=done(key),fut=d>ti;
+  var cl=fut?"":(c===r?"f":c>0?"p":(d<ti?"m":""));
+  g+="<button class='d "+cl+(key===sel?" sel":"")+"' data-d='"+key+"' "+(fut?"disabled":"")+" aria-label='Hari "+(d+1)+"'>"+(d+1)+"</button>"}
+ $("grid").innerHTML=g;
+ var dd=fk(sel);$("dt").textContent=DAY[dd.getDay()]+", "+dd.getDate()+"/"+(dd.getMonth()+1)+"/"+dd.getFullYear()+(sel===today?" (hari ini)":"");
+ var l=S.log[sel]||{};
+ $("list").innerHTML=req(sel).map(function(h){return "<button class='item "+(l[h.id]?"on":"")+"' data-h='"+h.id+"'><span class=cb>"+(l[h.id]?"✓":"")+"</span><span class=t>"+h.n+"<small>Alarm "+S.cfg[h.id].at+(S.cfg[h.id].on?"":" (mati)")+"</small></span></button>"}).join("");
+}
+function cfgui(){
+ $("cfg").innerHTML=H.map(function(h){var c=S.cfg[h.id];return "<div class=set><label><input type=checkbox data-on='"+h.id+"' "+(c.on?"checked":"")+"> "+h.n+"</label><input type=time data-at='"+h.id+"' value='"+c.at+"'><input type=time data-un='"+h.id+"' value='"+c.un+"' title='Sampai'></div>"}).join("")+"<p class=note>Kolom pertama: mulai bunyi. Kolom kedua: berhenti mengingatkan.</p>";
+ $("wake").checked=S.wake;$("st").value=S.start}
+document.addEventListener("click",function(e){
+ var t=e.target.closest("[data-d],[data-h]");if(!t)return;
+ if(t.dataset.d){sel=t.dataset.d}
+ else{if(idx(sel)>idx(k(new Date())))return;S.log[sel]=S.log[sel]||{};S.log[sel][t.dataset.h]=!S.log[sel][t.dataset.h];save();tick()}
+ render()});
+document.addEventListener("change",function(e){var t=e.target,c;
+ if(t.dataset.on){S.cfg[t.dataset.on].on=t.checked}
+ else if(t.dataset.at){S.cfg[t.dataset.at].at=t.value||"00:00"}
+ else if(t.dataset.un){S.cfg[t.dataset.un].un=t.value||"23:59"}
+ else if(t.id==="st"){if(!t.value)return;S.start=t.value;sel=idx(k(new Date()))<0?S.start:(idx(k(new Date()))>29?dk(29):k(new Date()))}
+ else if(t.id==="wake"){S.wake=t.checked;keepAwake()}
+ else return;save();render()});
+function hm(s){var p=s.split(":");return +p[0]*60+ +p[1]}
+var wav;
+function mkWav(){var sr=22050,n=Math.floor(sr*.35),b=new DataView(new ArrayBuffer(44+n*2));function w(o,t){for(var i=0;i<t.length;i++)b.setUint8(o+i,t.charCodeAt(i))}
+w(0,"RIFF");b.setUint32(4,36+n*2,true);w(8,"WAVEfmt ");b.setUint32(16,16,true);b.setUint16(20,1,true);b.setUint16(22,1,true);b.setUint32(24,sr,true);b.setUint32(28,sr*2,true);b.setUint16(32,2,true);b.setUint16(34,16,true);w(36,"data");b.setUint32(40,n*2,true);
+for(var i=0;i<n;i++){var e=Math.min(1,i/200,(n-i)/200);b.setInt16(44+i*2,Math.sin(2*Math.PI*880*i/sr)*.8*e*32767,true)}
+return URL.createObjectURL(new Blob([b],{type:"audio/wav"}))}
+function beep(){try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
+try{if(wav){wav.currentTime=0;var p=wav.play();if(p&&p.catch)p.catch(function(){})}}catch(e){}
+if(navigator.vibrate)navigator.vibrate([300,150,300])}
+function startRing(list){
+ $("ovl").innerHTML=list.map(function(h){return "<div class=row style='justify-content:space-between;padding:8px 0'><span>"+h.n+"</span><button class='b' data-fin='"+h.id+"'>Sudah</button></div>"}).join("");
+ $("ov").style.display="flex";
+ if(!beepT){beep();beepT=setInterval(beep,1200)}
+ try{if(window.Notification&&Notification.permission==="granted")new Notification("Menata 1 Bulan",{body:list.map(function(h){return h.n}).join(", "),requireInteraction:true})}catch(e){}}
+function stopRing(){$("ov").style.display="none";clearInterval(beepT);beepT=null}
+function tick(){
+ if(!armed)return;
+ if(idx(k(new Date()))<0)return;
+ var now=new Date(),m=now.getHours()*60+now.getMinutes(),key=k(now),l=S.log[key]||{},due=[];
+ req(key).forEach(function(h){var c=S.cfg[h.id];
+  if(c.on&&!l[h.id]&&m>=hm(c.at)&&m<hm(c.un)&&(!last[h.id]||Date.now()-last[h.id]>=300000))due.push(h)});
+ if(due.length){due.forEach(function(h){last[h.id]=Date.now()});startRing(due)}
+ else if($("ov").style.display==="flex"&&!document.querySelector("[data-fin]"))stopRing()}
+$("ov").addEventListener("click",function(e){var f=e.target.dataset.fin;
+ if(f){var key=k(new Date());S.log[key]=S.log[key]||{};S.log[key][f]=true;save();e.target.closest(".row").remove();render();
+  if(!document.querySelector("[data-fin]"))stopRing()}});
+$("snz").onclick=stopRing;
+function keepAwake(){try{if(S.wake&&armed&&navigator.wakeLock){navigator.wakeLock.request("screen").then(function(x){wl=x}).catch(function(){})}else if(wl){wl.release();wl=null}}catch(e){}}
+document.addEventListener("visibilitychange",function(){if(!document.hidden){keepAwake();tick()}});
+$("arm").onclick=function(){
+ wav=wav||new Audio(mkWav());wav.preload="auto";
+ try{if(window.Notification&&Notification.permission==="default")Notification.requestPermission()}catch(e){}
+ armed=true;beep();$("armst").textContent="Alarm aktif ✓";$("arm").textContent="Tes bunyi";keepAwake();tick()};
+$("exp").onclick=function(){var s=JSON.stringify(S);
+ (navigator.clipboard?navigator.clipboard.writeText(s):Promise.reject()).then(function(){alert("Cadangan tersalin. Tempel ke catatan untuk disimpan.")},function(){prompt("Salin teks ini:",s)})};
+$("imp").onclick=function(){var s=prompt("Tempel teks cadangan:");if(!s)return;
+ try{var o=JSON.parse(s);if(!o.log)throw 0;S=o;save();load();cfgui();render()}catch(e){alert("Cadangan tidak valid.")}};
+$("rst").onclick=function(){if(confirm("Hapus semua riwayat dan mulai bulan baru dari hari ini?")){S={};try{localStorage.removeItem(KEY)}catch(e){}load();S.start=k(new Date());save();sel=k(new Date());cfgui();render()}};
+load();sel=k(new Date());if(idx(sel)<0)sel=S.start;if(idx(sel)>29)sel=dk(29);cfgui();render();setInterval(tick,15000);
+</script>
+</body>
+</html>
